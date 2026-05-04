@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}All Orders{% endblock %}
+
+{% block content %}
+<div class="d-flex" style="min-height:calc(100vh - 60px)">
+    <aside class="sidebar d-none d-md-flex flex-column">
+        <div class="sidebar-heading">Overview</div>
+        <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <div class="sidebar-heading">Catalogue</div>
+        <a href="{{ url_for('admin.items') }}" class="nav-link"><i class="bi bi-grid"></i> Menu Items</a>
+        <div class="sidebar-heading">Transactions</div>
+        <a href="{{ url_for('admin.orders') }}" class="nav-link active"><i class="bi bi-receipt"></i> All Orders</a>
+        <a href="{{ url_for('admin.report') }}" class="nav-link"><i class="bi bi-bar-chart-line"></i> Sales Report</a>
+    </aside>
+
+    <main class="admin-main">
+        <h1 class="h4 fw-bold mb-4">All Orders</h1>
+
+        <!-- Filters -->
+        <div class="content-card mb-4">
+            <div class="p-3">
+                <form method="GET" action="{{ url_for('admin.orders') }}" class="row g-2 align-items-end">
+                    <div class="col-sm-4">
+                        <label class="form-label small fw-semibold">Filter by Date</label>
+                        <input type="date" class="form-control" name="date" value="{{ filter_date }}">
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="form-label small fw-semibold">Payment Status</label>
+                        <select class="form-select" name="status">
+                            <option value="">All</option>
+                            <option value="paid" {{ 'selected' if filter_status=='paid' }}>Paid</option>
+                            <option value="pending" {{ 'selected' if filter_status=='pending' }}>Pending</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-auto">
+                        <button type="submit" class="btn btn-primary-custom">
+                            <i class="bi bi-funnel me-1"></i>Filter
+                        </button>
+                        <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-secondary ms-1">Clear</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="content-card">
+            <div class="card-header-custom">
+                <span><i class="bi bi-table me-2"></i>{{ orders|length }} Order(s)</span>
+                <a href="{{ url_for('admin.export_report') }}" class="btn btn-xs btn-outline-success">
+                    <i class="bi bi-download me-1"></i>Export CSV
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table custom-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th>Customer</th>
+                            <th>Date & Time</th>
+                            <th>Items</th>
+                            <th>Subtotal</th>
+                            <th>GST</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Invoice</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td class="fw-semibold text-primary">#{{ order.id }}</td>
+                            <td>{{ order.user.username if order.user else '—' }}</td>
+                            <td class="text-muted small">{{ order.order_date.strftime("%d %b %Y, %H:%M") }}</td>
+                            <td>
+                                <span class="text-muted" style="font-size:0.8rem">
+                                    {% for oi in order.items %}
+                                    {{ oi.item_name }} ×{{ oi.quantity }}{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                </span>
+                            </td>
+                            <td>₹{{ '%.2f'|format(order.subtotal) }}</td>
+                            <td class="text-muted small">₹{{ '%.2f'|format(order.gst_amount) }}</td>
+                            <td class="fw-bold">₹{{ '%.2f'|format(order.total_amount) }}</td>
+                            <td>
+                                <span
+                                    class="badge {{ 'bg-success' if order.payment_status == 'paid' else 'bg-warning text-dark' }}">
+                                    {{ order.payment_status | capitalize }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('user.invoice', order_id=order.id) }}"
+                                    class="btn btn-xs btn-outline-primary" target="_blank">
+                                    <i class="bi bi-receipt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>No orders found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

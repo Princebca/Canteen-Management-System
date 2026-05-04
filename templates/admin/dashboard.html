@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex" style="min-height:calc(100vh - 60px)">
+
+    <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+    <aside class="sidebar d-none d-md-flex flex-column">
+        <div class="sidebar-heading">Overview</div>
+        <a href="{{ url_for('admin.dashboard') }}" class="nav-link active">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <div class="sidebar-heading">Catalogue</div>
+        <a href="{{ url_for('admin.items') }}" class="nav-link">
+            <i class="bi bi-grid"></i> Menu Items
+        </a>
+        <div class="sidebar-heading">Transactions</div>
+        <a href="{{ url_for('admin.orders') }}" class="nav-link">
+            <i class="bi bi-receipt"></i> All Orders
+        </a>
+        <a href="{{ url_for('admin.report') }}" class="nav-link">
+            <i class="bi bi-bar-chart-line"></i> Sales Report
+        </a>
+    </aside>
+
+    <!-- ── Main ─────────────────────────────────────────────────────────────── -->
+    <main class="admin-main">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="h4 fw-bold mb-0">Dashboard</h1>
+                <p class="text-muted small mb-0">Good {{ "morning" if now.hour < 12 else ("afternoon" if now.hour < 17
+                        else "evening" ) }}, {{ current_user.username }}!</p>
+            </div>
+            <span class="badge bg-light text-dark border">
+                <i class="bi bi-calendar3 me-1"></i>{{ now.strftime("%d %b %Y") }}
+            </span>
+        </div>
+
+        <!-- ── KPI Cards ─────────────────────────────────────────────────────── -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card">
+                    <div class="kpi-icon purple"><i class="bi bi-bag-check"></i></div>
+                    <div>
+                        <div class="kpi-value" data-count-up="{{ orders_today }}">{{ orders_today }}</div>
+                        <div class="kpi-label">Orders Today</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card">
+                    <div class="kpi-icon green"><i class="bi bi-currency-rupee"></i></div>
+                    <div>
+                        <div class="kpi-value" data-count-up="{{ '%.2f'|format(revenue_today) }}">₹{{
+                            '%.2f'|format(revenue_today) }}</div>
+                        <div class="kpi-label">Revenue Today</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card">
+                    <div class="kpi-icon cyan"><i class="bi bi-box-seam"></i></div>
+                    <div>
+                        <div class="kpi-value">{{ available_items }}</div>
+                        <div class="kpi-label">Available Items</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card">
+                    <div class="kpi-icon {{ 'red' if low_stock_items else 'green' }}">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <div class="kpi-value">{{ low_stock_items|length }}</div>
+                        <div class="kpi-label">Low Stock Items</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <!-- ── Low Stock Alert ──────────────────────────────────────────────── -->
+            <div class="col-lg-4">
+                <div class="content-card h-100">
+                    <div class="card-header-custom">
+                        <span><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Low Stock Alerts</span>
+                        <a href="{{ url_for('admin.items') }}" class="btn btn-xs btn-outline-secondary">Manage</a>
+                    </div>
+                    <div class="p-3">
+                        {% if low_stock_items %}
+                        <div class="list-group list-group-flush">
+                            {% for item in low_stock_items %}
+                            <div class="list-group-item px-0 d-flex align-items-center justify-content-between py-2">
+                                <div>
+                                    <div class="fw-semibold small">{{ item.name }}</div>
+                                    <div class="text-muted" style="font-size:0.75rem">{{ item.category }}</div>
+                                </div>
+                                <span class="low-stock-badge">
+                                    {{ item.stock_quantity }} left
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-check-circle-fill text-success fs-2"></i>
+                            <p class="mt-2 mb-0 small">All items are well stocked!</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Recent Orders ────────────────────────────────────────────────── -->
+            <div class="col-lg-8">
+                <div class="content-card h-100">
+                    <div class="card-header-custom">
+                        <span><i class="bi bi-clock-history me-2"></i>Recent Orders</span>
+                        <a href="{{ url_for('admin.orders') }}" class="btn btn-xs btn-outline-primary">View All</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table custom-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#ID</th>
+                                    <th>Customer</th>
+                                    <th>Date & Time</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Invoice</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td class="fw-semibold text-primary">#{{ order.id }}</td>
+                                    <td>{{ order.user.username if order.user else '—' }}</td>
+                                    <td class="text-muted small">{{ order.order_date.strftime("%d %b %Y, %H:%M") }}</td>
+                                    <td class="fw-semibold">₹{{ '%.2f'|format(order.total_amount) }}</td>
+                                    <td>
+                                        <span
+                                            class="badge {{ 'bg-success' if order.payment_status == 'paid' else 'bg-warning text-dark' }}">
+                                            {{ order.payment_status | capitalize }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('user.invoice', order_id=order.id) }}"
+                                            class="btn btn-xs btn-outline-primary" target="_blank">
+                                            <i class="bi bi-receipt"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">No orders yet today.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-4 d-flex gap-2 flex-wrap">
+            <a href="{{ url_for('admin.items') }}" class="btn btn-primary-custom">
+                <i class="bi bi-plus-circle me-2"></i>Add Menu Item
+            </a>
+            <a href="{{ url_for('admin.report') }}" class="btn btn-outline-primary">
+                <i class="bi bi-bar-chart-line me-2"></i>View Report
+            </a>
+            <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-list-ul me-2"></i>All Orders
+            </a>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Pass current time from server for the greeting
+    const now = new Date("{{ now.strftime('%Y-%m-%dT%H:%M:%S') }}");
+</script>
+{% endblock %}

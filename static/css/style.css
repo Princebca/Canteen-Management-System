@@ -1,0 +1,469 @@
+/* 
+ * static/css/style.css
+ * Custom styles for Canteen Management System
+ * Layered on top of Bootstrap 5
+ */
+
+/* ── Google Fonts ─────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ── CSS Variables ────────────────────────────────────────────────────────── */
+:root {
+  --primary:       #4f46e5;
+  --primary-dark:  #3730a3;
+  --primary-light: #e0e7ff;
+  --success:       #10b981;
+  --danger:        #ef4444;
+  --warning:       #f59e0b;
+  --info:          #06b6d4;
+  --dark:          #111827;
+  --sidebar-bg:    #1e1b4b;
+  --sidebar-text:  #c7d2fe;
+  --card-shadow:   0 4px 24px rgba(79,70,229,0.10);
+  --radius:        14px;
+  --transition:    0.22s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f5f5ff;
+  color: #1f2937;
+  min-height: 100vh;
+}
+
+a { text-decoration: none; }
+a:hover { text-decoration: none; }
+
+/* ── Navbar ───────────────────────────────────────────────────────────────── */
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: 0.3px;
+}
+
+.navbar-main {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  box-shadow: 0 2px 12px rgba(79,70,229,0.25);
+}
+
+.navbar-main .nav-link,
+.navbar-main .navbar-brand {
+  color: #fff !important;
+}
+
+.navbar-main .nav-link:hover {
+  color: var(--primary-light) !important;
+}
+
+.nav-badge {
+  background: var(--warning);
+  color: #111;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+/* ── Sidebar (admin) ──────────────────────────────────────────────────────── */
+.sidebar {
+  background: var(--sidebar-bg);
+  min-height: calc(100vh - 60px);
+  width: 240px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 60px;
+  padding-top: 1.5rem;
+}
+
+.sidebar .nav-link {
+  color: var(--sidebar-text);
+  padding: 0.6rem 1.4rem;
+  border-radius: 8px;
+  margin: 2px 12px;
+  font-size: 0.93rem;
+  font-weight: 500;
+  transition: background var(--transition), color var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+
+.sidebar .nav-link i {
+  width: 20px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.sidebar-heading {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: rgba(199,210,254,0.55);
+  padding: 0.6rem 1.6rem 0.2rem;
+  margin-top: 0.6rem;
+}
+
+/* ── Admin main content ───────────────────────────────────────────────────── */
+.admin-main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 100%;
+}
+
+/* ── KPI Cards ────────────────────────────────────────────────────────────── */
+.kpi-card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform var(--transition), box-shadow var(--transition);
+  border: 1px solid rgba(79,70,229,0.07);
+}
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(79,70,229,0.16);
+}
+
+.kpi-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.kpi-icon.purple  { background: #ede9fe; color: var(--primary); }
+.kpi-icon.green   { background: #d1fae5; color: var(--success); }
+.kpi-icon.orange  { background: #fef3c7; color: var(--warning); }
+.kpi-icon.red     { background: #fee2e2; color: var(--danger);  }
+.kpi-icon.cyan    { background: #cffafe; color: var(--info);    }
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--dark);
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Generic Cards ────────────────────────────────────────────────────────── */
+.content-card {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  border: 1px solid rgba(79,70,229,0.07);
+  overflow: hidden;
+}
+
+.content-card .card-header-custom {
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+  font-size: 0.97rem;
+  color: var(--dark);
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── Menu Grid ────────────────────────────────────────────────────────────── */
+.menu-card {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 16px rgba(79,70,229,0.08);
+  border: 1px solid rgba(79,70,229,0.06);
+  transition: transform var(--transition), box-shadow var(--transition);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(79,70,229,0.15);
+}
+
+.menu-card .card-body {
+  flex: 1;
+  padding: 1.2rem;
+}
+
+.menu-card .card-footer-custom {
+  padding: 0.8rem 1.2rem;
+  border-top: 1px solid #f3f4f6;
+  background: #fafafa;
+}
+
+.item-category-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.category-meals      { background: #ede9fe; color: #5b21b6; }
+.category-snacks     { background: #fef9c3; color: #854d0e; }
+.category-beverages  { background: #cffafe; color: #164e63; }
+.category-desserts   { background: #fce7f3; color: #9d174d; }
+.category-default    { background: #f3f4f6; color: #374151; }
+
+.item-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.stock-out {
+  font-size: 0.75rem;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* ── Low Stock Badge ──────────────────────────────────────────────────────── */
+.low-stock-badge {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* ── Cart ─────────────────────────────────────────────────────────────────── */
+.cart-summary-card {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 1.75rem;
+}
+
+.cart-summary-card .summary-label { opacity: 0.8; font-size: 0.85rem; }
+.cart-summary-card .summary-value { font-size: 1.1rem; font-weight: 600; }
+.cart-summary-card .total-value   { font-size: 2rem;  font-weight: 700; }
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qty-control input[type=number] {
+  width: 58px;
+  text-align: center;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 4px 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ── Invoice ──────────────────────────────────────────────────────────────── */
+.invoice-wrap {
+  max-width: 700px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+  padding: 2.5rem;
+}
+
+.invoice-header {
+  border-bottom: 3px solid var(--primary);
+  padding-bottom: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.invoice-brand {
+  font-size: 1.6rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.invoice-table th {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.invoice-totals td { font-size: 0.95rem; }
+.invoice-totals .grand-total td {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary);
+  border-top: 2px solid var(--primary);
+}
+
+/* ── Tables ───────────────────────────────────────────────────────────────── */
+.custom-table {
+  font-size: 0.9rem;
+}
+
+.custom-table thead th {
+  background: #f8f5ff;
+  color: var(--primary-dark);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--primary-light);
+  white-space: nowrap;
+}
+
+.custom-table tbody tr {
+  transition: background var(--transition);
+}
+
+.custom-table tbody tr:hover {
+  background: #f8f5ff;
+}
+
+/* ── Flash Messages ───────────────────────────────────────────────────────── */
+.flash-container {
+  position: fixed;
+  top: 72px;
+  right: 1.2rem;
+  z-index: 9999;
+  min-width: 300px;
+  max-width: 420px;
+}
+
+.flash-container .alert {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* ── Login Page ───────────────────────────────────────────────────────────── */
+.login-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #1e1b4b 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.login-card {
+  background: rgba(255,255,255,0.97);
+  border-radius: 20px;
+  padding: 2.5rem 2.2rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.28);
+}
+
+.login-logo {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  margin-bottom: 0.3rem;
+}
+
+.login-subtitle { font-size: 0.85rem; color: #6b7280; text-align: center; }
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+}
+
+.btn-primary-custom {
+  background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  padding: 0.65rem 1.5rem;
+  border-radius: 10px;
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.btn-primary-custom:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  color: #fff;
+}
+
+/* ── Error Pages ──────────────────────────────────────────────────────────── */
+.error-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #f5f5ff;
+}
+
+.error-code {
+  font-size: 8rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--primary), #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.btn-xs { padding: 0.2rem 0.5rem; font-size: 0.76rem; border-radius: 6px; }
+
+/* ── Report Chart Container ───────────────────────────────────────────────── */
+.chart-container { position: relative; height: 260px; }
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 767.98px) {
+  .sidebar { display: none; }
+  .admin-main { padding: 1rem; }
+  .kpi-value { font-size: 1.35rem; }
+  .flash-container { right: 0.5rem; min-width: 260px; }
+}
+
+/* ── Print (Invoice) ──────────────────────────────────────────────────────── */
+@media print {
+  .no-print, .navbar-main, .sidebar, .flash-container { display: none !important; }
+  body { background: #fff; }
+  .invoice-wrap { box-shadow: none; padding: 0; }
+}

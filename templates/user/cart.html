@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}My Cart{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-3 px-md-4">
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <a href="{{ url_for('user.menu') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Continue Shopping
+        </a>
+        <h1 class="h4 fw-bold mb-0">🛒 My Cart</h1>
+    </div>
+
+    {% if cart_items %}
+    <div class="row g-4">
+        <!-- Cart Items -->
+        <div class="col-lg-8">
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <span>{{ cart_items|length }} Item(s) in Cart</span>
+                    <form method="POST" action="{{ url_for('user.clear_cart') }}" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-xs btn-outline-danger"
+                            data-confirm="Clear all items from cart?">
+                            <i class="bi bi-trash me-1"></i>Clear All
+                        </button>
+                    </form>
+                </div>
+                <div class="table-responsive">
+                    <table class="table custom-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th>Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ci in cart_items %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">{{ ci.item.name }}</div>
+                                    <span class="item-category-badge category-{{ ci.item.category | lower }}">
+                                        {{ ci.item.category }}
+                                    </span>
+                                </td>
+                                <td>₹{{ '%.2f'|format(ci.item.price) }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('user.update_cart', item_id=ci.item.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <div class="qty-wrapper d-flex align-items-center gap-1">
+                                            <button type="button" class="btn btn-xs btn-outline-secondary"
+                                                data-action="decrement">
+                                                <i class="bi bi-dash"></i>
+                                            </button>
+                                            <input type="number" name="quantity" value="{{ ci.qty }}" min="0"
+                                                max="{{ ci.item.stock_quantity }}"
+                                                class="form-control form-control-sm text-center" style="width:56px"
+                                                onchange="this.form.submit()">
+                                            <button type="button" class="btn btn-xs btn-outline-secondary"
+                                                data-action="increment">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                            <button type="submit" class="btn btn-xs btn-primary ms-1">
+                                                <i class="bi bi-check"></i>
+                                            </button>
+                                        </div>
+                                        <div class="text-muted" style="font-size:0.72rem; margin-top:2px">
+                                            Max: {{ ci.item.stock_quantity }}
+                                        </div>
+                                    </form>
+                                </td>
+                                <td class="fw-semibold text-primary">₹{{ '%.2f'|format(ci.line_total) }}</td>
+                                <td>
+                                    <form method="POST"
+                                        action="{{ url_for('user.remove_from_cart', item_id=ci.item.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-xs btn-outline-danger"
+                                            data-confirm="Remove '{{ ci.item.name }}' from cart?">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="cart-summary-card mb-3">
+                <h5 class="fw-bold mb-3">Order Summary</h5>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="summary-label">Subtotal</span>
+                    <span class="summary-value">₹{{ '%.2f'|format(subtotal) }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="summary-label">GST ({{ gst_percent }}%)</span>
+                    <span class="summary-value">₹{{ '%.2f'|format(gst_amount) }}</span>
+                </div>
+                <hr style="border-color:rgba(255,255,255,0.3)">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">Total</span>
+                    <span class="total-value">₹{{ '%.2f'|format(total) }}</span>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ url_for('user.place_order') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-success fw-bold py-2"
+                        data-confirm="Place this order for ₹{{ '%.2f'|format(total) }}?">
+                        <i class="bi bi-bag-check-fill me-2"></i>Place Order (₹{{ '%.2f'|format(total) }})
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-3 p-3 rounded-3 bg-light text-muted small">
+                <i class="bi bi-shield-check me-1 text-success"></i>
+                Secure checkout. Payment is marked as <strong>Paid</strong> on order placement.
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="text-center py-5">
+        <div style="font-size:4rem">🛒</div>
+        <h3 class="mt-3 fw-bold">Your cart is empty</h3>
+        <p class="text-muted">Browse our menu and add some items!</p>
+        <a href="{{ url_for('user.menu') }}" class="btn btn-primary-custom mt-2">
+            <i class="bi bi-grid me-2"></i>Browse Menu
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

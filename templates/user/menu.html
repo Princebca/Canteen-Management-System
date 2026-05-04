@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Menu{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-3 px-md-4">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+        <div>
+            <h1 class="h4 fw-bold mb-0">🍽 Canteen Menu</h1>
+            <p class="text-muted small mb-0">{{ items|length }} item(s) available</p>
+        </div>
+        <a href="{{ url_for('user.view_cart') }}" class="btn btn-primary-custom position-relative">
+            <i class="bi bi-cart3 me-2"></i>View Cart
+            {% if cart_item_count > 0 %}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
+                {{ cart_item_count }}
+            </span>
+            {% endif %}
+        </a>
+    </div>
+
+    <!-- Search + Category Filter -->
+    <div class="row g-2 mb-4">
+        <div class="col-md-5">
+            <form method="GET" action="{{ url_for('user.menu') }}" class="d-flex gap-2" id="searchForm">
+                <input type="search" class="form-control" id="searchInput" name="search" value="{{ search }}"
+                    placeholder='Search items… (press "/" to focus)' autocomplete="off">
+                {% if selected_category %}
+                <input type="hidden" name="category" value="{{ selected_category }}">
+                {% endif %}
+                <button type="submit" class="btn btn-primary-custom px-3">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+        <div class="col-md-7">
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url_for('user.menu', search=search) }}"
+                    class="btn btn-sm category-pill {{ 'btn-primary' if not selected_category else 'btn-outline-secondary' }}">
+                    All
+                </a>
+                {% for cat in categories %}
+                <a href="{{ url_for('user.menu', category=cat, search=search) }}"
+                    class="btn btn-sm category-pill {{ 'btn-primary' if selected_category == cat else 'btn-outline-secondary' }}">
+                    {{ cat }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Grid -->
+    {% if items %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-3">
+        {% for item in items %}
+        <div class="col">
+            <div class="menu-card h-100 d-flex flex-column">
+                {% if item.image_filename %}
+                <img src="{{ url_for('static', filename='uploads/menu/' ~ item.image_filename) }}" class="card-img-top" alt="{{ item.name }}" style="height: 150px; object-fit: cover; border-top-left-radius: 12px; border-top-right-radius: 12px;">
+                {% else %}
+                <div class="card-img-top d-flex align-items-center justify-content-center bg-light text-muted" style="height: 150px; border-top-left-radius: 12px; border-top-right-radius: 12px;">
+                    <i class="bi bi-image fs-1"></i>
+                </div>
+                {% endif %}
+                <div class="card-body flex-grow-1">
+                    <!-- Category badge -->
+                    <span class="item-category-badge category-{{ item.category | lower }} mb-2 d-inline-block">
+                        {{ item.category }}
+                    </span>
+                    <h5 class="fw-bold mb-1" style="font-size:1rem">{{ item.name }}</h5>
+                    <div class="item-price mb-1">₹{{ '%.2f'|format(item.price) }}</div>
+                    <div
+                        class="small {{ 'text-danger' if item.stock_quantity == 0 else ('text-warning' if item.stock_quantity <= 10 else 'text-muted') }}">
+                        {% if item.stock_quantity == 0 %}
+                        <i class="bi bi-x-circle me-1"></i>Out of stock
+                        {% elif item.stock_quantity <= 10 %} <i class="bi bi-exclamation-triangle me-1"></i>Only {{
+                            item.stock_quantity }} left!
+                            {% else %}
+                            <i class="bi bi-check-circle me-1"></i>In stock ({{ item.stock_quantity }})
+                            {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer-custom">
+                    {% if item.stock_quantity > 0 %}
+                    <form method="POST" action="{{ url_for('user.add_to_cart', item_id=item.id) }}"
+                        class="d-flex gap-2">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="qty-wrapper d-flex align-items-center gap-1 flex-grow-1">
+                            <button type="button" class="btn btn-xs btn-outline-secondary" data-action="decrement">
+                                <i class="bi bi-dash"></i>
+                            </button>
+                            <input type="number" name="quantity" value="1" min="1" max="{{ item.stock_quantity }}"
+                                class="form-control form-control-sm text-center" style="width:52px">
+                            <button type="button" class="btn btn-xs btn-outline-secondary" data-action="increment">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary-custom">
+                            <i class="bi bi-cart-plus"></i>
+                        </button>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-sm btn-outline-secondary w-100" disabled>
+                        <i class="bi bi-x-circle me-1"></i>Out of Stock
+                    </button>
+                    {% endif %}
+
+                    <!-- Show qty in cart if added -->
+                    {% if cart.get(item.id | string, 0) > 0 %}
+                    <div class="text-center mt-1" style="font-size:0.75rem">
+                        <span class="badge bg-success">
+                            <i class="bi bi-cart-check me-1"></i>{{ cart[item.id | string] }} in cart
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-search fs-1 d-block mb-3"></i>
+        <h4>No items found</h4>
+        <p>Try a different search or category filter.</p>
+        <a href="{{ url_for('user.menu') }}" class="btn btn-outline-primary">Show All Items</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

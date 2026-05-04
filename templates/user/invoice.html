@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Invoice #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-4 no-print d-flex justify-content-end gap-2 mb-2">
+    <button onclick="window.print()" class="btn btn-primary-custom">
+        <i class="bi bi-printer me-2"></i>Print Invoice
+    </button>
+    <a href="{{ url_for('user.order_history') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-clock-history me-2"></i>My Orders
+    </a>
+</div>
+
+<div class="invoice-wrap mb-5">
+    <!-- Header -->
+    <div class="invoice-header d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div>
+            <div class="invoice-brand">🍽 CanteenMS</div>
+            <div class="text-muted small">Canteen Management System</div>
+        </div>
+        <div class="text-end">
+            <div class="fw-bold fs-5">INVOICE</div>
+            <div class="text-muted small">#{{ '%05d'|format(order.id) }}</div>
+        </div>
+    </div>
+
+    <!-- Order meta -->
+    <div class="row mb-4">
+        <div class="col-sm-6">
+            <p class="mb-1 small text-muted fw-semibold text-uppercase">Bill To</p>
+            <p class="fw-bold mb-0">{{ order.user.username | capitalize if order.user else "Guest" }}</p>
+            <p class="text-muted small mb-0">Customer</p>
+        </div>
+        <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+            <div class="small text-muted">Order Date</div>
+            <div class="fw-semibold">{{ order.order_date.strftime("%d %B %Y, %I:%M %p") }}</div>
+            <div class="small mt-1">
+                <span
+                    class="badge {{ 'bg-success' if order.payment_status == 'paid' else 'bg-warning text-dark' }} fs-6">
+                    <i class="bi bi-{{ 'check-circle' if order.payment_status == 'paid' else 'clock' }} me-1"></i>
+                    {{ order.payment_status | capitalize }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <table class="table invoice-table mb-3">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Item</th>
+                <th class="text-end">Price</th>
+                <th class="text-center">Qty</th>
+                <th class="text-end">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for oi in order.items %}
+            <tr>
+                <td class="text-muted small">{{ loop.index }}</td>
+                <td class="fw-semibold">{{ oi.item_name }}</td>
+                <td class="text-end">₹{{ '%.2f'|format(oi.item_price) }}</td>
+                <td class="text-center">{{ oi.quantity }}</td>
+                <td class="text-end fw-semibold">₹{{ '%.2f'|format(oi.line_total) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Totals -->
+    <table class="table invoice-totals ms-auto" style="max-width:320px">
+        <tbody>
+            <tr>
+                <td class="text-muted">Subtotal</td>
+                <td class="text-end">₹{{ '%.2f'|format(order.subtotal) }}</td>
+            </tr>
+            <tr>
+                <td class="text-muted">GST ({{ gst_percent }}%)</td>
+                <td class="text-end">₹{{ '%.2f'|format(order.gst_amount) }}</td>
+            </tr>
+        </tbody>
+        <tfoot class="grand-total">
+            <tr>
+                <td>Grand Total</td>
+                <td class="text-end">₹{{ '%.2f'|format(order.total_amount) }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- Footer note -->
+    <div class="border-top pt-3 text-center text-muted small">
+        <i class="bi bi-heart-fill text-danger me-1"></i>
+        Thank you for your order! Enjoy your meal.
+        <br>
+        This is a computer-generated invoice — no signature required.
+    </div>
+</div>
+{% endblock %}
